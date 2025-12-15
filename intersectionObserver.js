@@ -25,12 +25,41 @@ tweets.forEach((tweet) => {
     tweetObserver.observe(tweet)
 });
 
-setInterval(() => {
-    const newTweets = document.querySelectorAll('article[data-testid="tweet"');
+// use mutationObserver to look for new tweets
+// being added to the feed container
+// and add them to the tweet observer
 
-    newTweets.forEach((tweet) => {
-        if (!tweet.hasAttribute('data-seen')){
-            tweetObserver.observe(tweet);
+const feedContainer = document.querySelector('div[aria-label="Home timeline"]');
+
+const onMutation = (mutationsList, observer) => {
+    for (const mutation of mutationsList) {
+        if (mutation.type == 'childList') {
+            mutation.addedNodes.forEach(node => {
+                if (node.nodeType === 1) {
+                    if (node.matches('article[data-testid="tweet"]')) {
+                        tweetObserver.observe(node);
+                    }
+
+                    const newTweets = node.querySelectorAll('article[data-testid="tweet"]');
+                    newTweets.forEach(tweet => {
+                        tweetObserver.observe(tweet);
+                    });
+                }
+            });
         }
-    });
-}, 2000);
+    }
+};
+
+const mutationObserverOptions = {
+    childList: true,
+    subtree: true
+};
+
+const mutationObserver = new MutationObserver(onMutation)
+
+if (feedContainer){
+    mutationObserver.observe(feedContainer, mutationObserverOptions);
+    console.log("Mutationobserver is now watching the feed container");
+} else {
+    console.log("Could not find mutation observer");
+};
