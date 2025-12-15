@@ -1,0 +1,15 @@
+{
+    "manifest_version": 2,
+    "name": "Twitter/X Scroll Limiter",
+    "version": "1.0",
+
+    "description": "Disable doom scrolling! Limit the number of posts you can scroll",
+    
+    "content_scripts": [
+        {
+            "matches": ["*://*.x.com/home"],
+            "js": ["limitPosts.js"]
+        }
+    ]
+
+}
