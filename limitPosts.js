@@ -11,7 +11,12 @@ function getTweetID(tweetNode) {
     if (!tweetTimeNode) {
         return null;
     }
-    const tweetURL = tweetTimeNode.closest('a').href;
+
+    const tweetLinkNode = tweetTimeNode.closest('a') 
+    if (!tweetLinkNode) {
+        return null;
+    }
+    const tweetURL = tweetLinkNode.href;
     // example url: https://x.com/yush_g/status/2001553031348019584
 
     const parts = tweetURL.split('/');
@@ -109,17 +114,19 @@ function startApp(feedContainer) {
             if (mutation.type == 'childList') {
                 mutation.addedNodes.forEach(node => {
                     if (node.nodeType === 1) {
+                        
+                        const currTweetID = getTweetID(node);
+
+                        if (currTweetID && seenTweetIDs.has(currTweetID)) {
+                            return ;
+                        }
 
                         if (limitReached) {
                             // if (node.matches('article[data-testid="tweet"]') ||
                             //         node.querySelector('article[data-testid="tweet"]')) {
                             //             node.style.display = 'none';
                             //         };
-                            const currTweetID = getTweetID(node);
-
-                            if (currTweetID && seenTweetIDs.has(currTweetID)) {
-                                // pass
-                            } else if (!node.hasAttribute('isExtensionStopSign')) {
+                            if (!node.hasAttribute('isExtensionStopSign')) {
                                 node.style.display = 'none';
                             };
 
