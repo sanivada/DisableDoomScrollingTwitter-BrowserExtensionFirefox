@@ -1,6 +1,24 @@
 let visibleTweetCounter = 0;
 let LIMIT = 20;
 let limitReached = false;
+const seenTweetIDs = new Set();
+
+function getTweetID(tweetNode) {
+    // tweetNode is either
+    // 1. div with data-testid="cellInnerDiv"
+    // or 2. article with data-testid="tweet"
+    const tweetTimeNode = tweetNode.querySelector('time') 
+    if (!tweetTimeNode) {
+        return null;
+    }
+    const tweetURL = tweetTimeNode.closest('a').href;
+    // example url: https://x.com/yush_g/status/2001553031348019584
+
+    const parts = tweetURL.split('/');
+    const statusIndex = parts.indexOf('status');
+    
+    return parts[statusIndex + 1];
+}
 
 function cleanUpFeed(lastVisibleTweet) {
 
@@ -52,6 +70,9 @@ function startApp(feedContainer) {
                 visibleTweetCounter++;
                 console.log(`counted a tweet! total: ${visibleTweetCounter}`);
                 
+                seenTweetIDs.add(getTweetID(entry.target));
+                console.log('registered tweet id');
+
                 if (visibleTweetCounter >= LIMIT) {
                     limitReached = true;
                     console.log('LIMIT REACHED.');
@@ -59,7 +80,6 @@ function startApp(feedContainer) {
                     observer.disconnect();
                     cleanUpFeed(entry.target);
                 };
-
 
                 // entry.target.setAttribute('data-seen', 'true');
                 observer.unobserve(entry.target);
@@ -95,10 +115,15 @@ function startApp(feedContainer) {
                             //         node.querySelector('article[data-testid="tweet"]')) {
                             //             node.style.display = 'none';
                             //         };
+                            const currTweetID = getTweetID(node);
 
-                            if (!node.hasAttribute('isExtensionStopSign')) {
+                            if (currTweetID && seenTweetIDs.has(currTweetID)) {
+                                // pass
+                            } else if (!node.hasAttribute('isExtensionStopSign')) {
                                 node.style.display = 'none';
-                            }
+                            };
+
+
                             
                         } else {
                             if (node.matches('article[data-testid="tweet"]')) {
