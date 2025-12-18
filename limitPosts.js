@@ -4,7 +4,8 @@ let limitReached = false;
 
 function cleanUpFeed(lastVisibleTweet) {
 
-    let sibling = lastVisibleTweet.closest('div[data-testid="cellInnerDiv"]').nextElementSibling;
+    let lastVisibleTweetWrapper = lastVisibleTweet.closest('div[data-testid="cellInnerDiv"]'); 
+    let sibling = lastVisibleTweetWrapper.nextElementSibling;
 
     while (sibling) {
         sibling.style.display = 'none';
@@ -14,15 +15,32 @@ function cleanUpFeed(lastVisibleTweet) {
 
     // add a stop sign
     const stopSign = document.createElement('div');
+    // stopSign.id = 'extension-stop-sign';
+    stopSign.setAttribute('isExtensionStopSign', 'true');
     stopSign.innerText = `You have reached your limit of ${LIMIT} tweets`;
     stopSign.style.fontWeight = "bold";
     stopSign.style.textAlign = "center";
     stopSign.style.padding = "20px";
 
-    const tweetContainer = document.querySelector('div[aria-label="Home timeline"]');
-    tweetContainer.append(stopSign);
+    // const tweetContainer = document.querySelector('div[aria-label="Home timeline"]');
+    // tweetContainer.append(stopSign);
     // lastVisibleTweet.parentNode.appendChild(stopSign);
+
+
+    const timelineList = lastVisibleTweetWrapper.parentNode;
+    // timelineList.appendChild(stopSign);
     console.log('added the stop sign!')
+
+    /* parent of node with data-testid = "cellInnerDiv"
+    has a min-height style set to a large value
+    which dynamically increases
+    */
+
+    // timelineList.style.setProperty('min-height', '0px', 'important');
+    // timelineList.style.setProperty('height', 'auto', 'important');
+    // timelineList.style.setProperty('padding-bottom', '0px', 'important');
+
+    // console.log('timeline feed container virtualisation height collapsed.')
 };
 
 function startApp(feedContainer) {
@@ -73,10 +91,15 @@ function startApp(feedContainer) {
                     if (node.nodeType === 1) {
 
                         if (limitReached) {
-                            if (node.matches('article[data-testid="tweet"]') ||
-                                    node.querySelector('article[data-testid="tweet"]')) {
-                                        node.style.display = 'none';
-                                    };
+                            // if (node.matches('article[data-testid="tweet"]') ||
+                            //         node.querySelector('article[data-testid="tweet"]')) {
+                            //             node.style.display = 'none';
+                            //         };
+
+                            if (!node.hasAttribute('isExtensionStopSign')) {
+                                node.style.display = 'none';
+                            }
+                            
                         } else {
                             if (node.matches('article[data-testid="tweet"]')) {
                                 tweetObserver.observe(node);
