@@ -46,16 +46,30 @@ function cleanUpFeed(lastVisibleTweet) {
         sibling = sibling.nextElementSibling;
     }
     // console.log('cleaned the tweets after N tweets, after the limit is reached.')
-
+    
+    const rect = lastVisibleTweetWrapper.getBoundingClientRect();
+    const parentRect = lastVisibleTweetWrapper.parentElement.getBoundingClientRect();
+    const relativePos = rect.bottom - parentRect.top;
     // add a stop sign
     const stopSign = document.createElement('div');
     // stopSign.id = 'extension-stop-sign';
     stopSign.setAttribute('isExtensionStopSign', 'true');
     stopSign.innerText = `You have reached your limit of ${LIMIT} tweets`;
-    stopSign.style.fontWeight = "bold";
-    stopSign.style.textAlign = "center";
-    stopSign.style.padding = "20px";
+    stopSign.style.cssText = `
+        font-weight: bold;
+        text-align: center;
+        padding: 40px;
+        position: absolute;
+        width: 100%;
+        transform: translateY(${relativePos}px);
+        min-height: 200px;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    `;
 
+    lastVisibleTweetWrapper.after(stopSign);
     // const tweetContainer = document.querySelector('div[aria-label="Home timeline"]');
     // tweetContainer.append(stopSign);
     // lastVisibleTweet.parentNode.appendChild(stopSign);
@@ -75,10 +89,10 @@ function cleanUpFeed(lastVisibleTweet) {
     // timelineList.style.setProperty('padding-bottom', '0px', 'important');
 
     // console.log('timeline feed container virtualisation height collapsed.')
-    const rect = lastVisibleTweetWrapper.getBoundingClientRect();
     // the height of content that is outside (above) the screen
+    const stopSignRect = stopSign.getBoundingClientRect();
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    limitPixel = rect.bottom + scrollTop;
+    limitPixel = stopSignRect.bottom + scrollTop;
     isScrollLocked = true;
 };
 
