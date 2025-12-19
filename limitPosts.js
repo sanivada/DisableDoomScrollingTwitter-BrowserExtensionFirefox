@@ -27,15 +27,24 @@ function getTweetID(tweetNode) {
     return parts[statusIndex + 1];
 }
 
+function getTweetWrapper(tweetArticle) {
+    return tweetArticle.closest('div[data-testid="cellInnerDiv"]')
+}
+
 function cleanUpFeed(lastVisibleTweet) {
 
-    let lastVisibleTweetWrapper = lastVisibleTweet.closest('div[data-testid="cellInnerDiv"]'); 
+    let lastVisibleTweetWrapper = getTweetWrapper(lastVisibleTweet); 
     let sibling = lastVisibleTweetWrapper.nextElementSibling;
-
-    // while (sibling) {
-    //     sibling.style.display = 'none';
-    //     sibling = sibling.nextElementSibling;
-    // }
+    // add the rest of tweets in the DOM to the registry
+    // to let those extra tweets load into DOM
+    // when scrolled up and then down to the limit.
+                    
+    while (sibling) {
+        // sibling.style.display = 'none';
+        sibling.style.setProperty('visibility', 'hidden', 'important');
+        sibling.style.setProperty('opacity', '0', 'important');
+        sibling = sibling.nextElementSibling;
+    }
     // console.log('cleaned the tweets after N tweets, after the limit is reached.')
 
     // add a stop sign
@@ -141,7 +150,9 @@ function startApp(feedContainer) {
                             //             node.style.display = 'none';
                             //         };
                             if (!node.hasAttribute('isExtensionStopSign')) {
-                                node.style.display = 'none';
+                                // node.style.display = 'none';
+                                node.style.setProperty('visibility', 'hidden', 'important');
+                                node.style.setProperty('opacity', '0', 'important');
                             };
 
 
