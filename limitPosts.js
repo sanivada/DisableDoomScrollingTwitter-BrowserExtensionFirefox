@@ -1,6 +1,8 @@
 let visibleTweetCounter = 0;
 let LIMIT = 20;
 let limitReached = false;
+let limitPixel = 0;
+let isScrollLocked = false;
 const seenTweetIDs = new Set();
 
 function getTweetID(tweetNode) {
@@ -25,26 +27,49 @@ function getTweetID(tweetNode) {
     return parts[statusIndex + 1];
 }
 
+function getTweetWrapper(tweetArticle) {
+    return tweetArticle.closest('div[data-testid="cellInnerDiv"]')
+}
+
 function cleanUpFeed(lastVisibleTweet) {
 
-    let lastVisibleTweetWrapper = lastVisibleTweet.closest('div[data-testid="cellInnerDiv"]'); 
+    let lastVisibleTweetWrapper = getTweetWrapper(lastVisibleTweet); 
     let sibling = lastVisibleTweetWrapper.nextElementSibling;
-
+    // add the rest of tweets in the DOM to the registry
+    // to let those extra tweets load into DOM
+    // when scrolled up and then down to the limit.
+                    
     while (sibling) {
-        sibling.style.display = 'none';
+        // sibling.style.display = 'none';
+        sibling.style.setProperty('visibility', 'hidden', 'important');
+        sibling.style.setProperty('opacity', '0', 'important');
         sibling = sibling.nextElementSibling;
     }
-    console.log('cleaned the tweets after N tweets, after the limit is reached.')
-
+    // console.log('cleaned the tweets after N tweets, after the limit is reached.')
+    
+    const rect = lastVisibleTweetWrapper.getBoundingClientRect();
+    const parentRect = lastVisibleTweetWrapper.parentElement.getBoundingClientRect();
+    const relativePos = rect.bottom - parentRect.top;
     // add a stop sign
     const stopSign = document.createElement('div');
     // stopSign.id = 'extension-stop-sign';
     stopSign.setAttribute('isExtensionStopSign', 'true');
     stopSign.innerText = `You have reached your limit of ${LIMIT} tweets`;
-    stopSign.style.fontWeight = "bold";
-    stopSign.style.textAlign = "center";
-    stopSign.style.padding = "20px";
+    stopSign.style.cssText = `
+        font-weight: bold;
+        text-align: center;
+        padding: 40px;
+        position: absolute;
+        width: 100%;
+        transform: translateY(${relativePos}px);
+        min-height: 200px;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    `;
 
+    lastVisibleTweetWrapper.after(stopSign);
     // const tweetContainer = document.querySelector('div[aria-label="Home timeline"]');
     // tweetContainer.append(stopSign);
     // lastVisibleTweet.parentNode.appendChild(stopSign);
@@ -64,7 +89,19 @@ function cleanUpFeed(lastVisibleTweet) {
     // timelineList.style.setProperty('padding-bottom', '0px', 'important');
 
     // console.log('timeline feed container virtualisation height collapsed.')
+    // the height of content that is outside (above) the screen
+    const stopSignRect = stopSign.getBoundingClientRect();
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    limitPixel = stopSignRect.bottom + scrollTop;
+    isScrollLocked = true;
 };
+
+// event listener to scroll
+window.addEventListener('scroll', () => {
+    if (isScrollLocked && window.scrollY + window.innerHeight > limitPixel) {
+        window.scrollTo(0, limitPixel - window.innerHeight);
+    }
+});
 
 function startApp(feedContainer) {
 
@@ -127,7 +164,9 @@ function startApp(feedContainer) {
                             //             node.style.display = 'none';
                             //         };
                             if (!node.hasAttribute('isExtensionStopSign')) {
-                                node.style.display = 'none';
+                                // node.style.display = 'none';
+                                node.style.setProperty('visibility', 'hidden', 'important');
+                                node.style.setProperty('opacity', '0', 'important');
                             };
 
 
