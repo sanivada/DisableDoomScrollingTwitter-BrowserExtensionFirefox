@@ -1,6 +1,8 @@
 let visibleTweetCounter = 0;
 let LIMIT = 20;
 let limitReached = false;
+let limitPixel = 0;
+let isScrollLocked = false;
 const seenTweetIDs = new Set();
 
 function getTweetID(tweetNode) {
@@ -30,11 +32,11 @@ function cleanUpFeed(lastVisibleTweet) {
     let lastVisibleTweetWrapper = lastVisibleTweet.closest('div[data-testid="cellInnerDiv"]'); 
     let sibling = lastVisibleTweetWrapper.nextElementSibling;
 
-    while (sibling) {
-        sibling.style.display = 'none';
-        sibling = sibling.nextElementSibling;
-    }
-    console.log('cleaned the tweets after N tweets, after the limit is reached.')
+    // while (sibling) {
+    //     sibling.style.display = 'none';
+    //     sibling = sibling.nextElementSibling;
+    // }
+    // console.log('cleaned the tweets after N tweets, after the limit is reached.')
 
     // add a stop sign
     const stopSign = document.createElement('div');
@@ -64,7 +66,19 @@ function cleanUpFeed(lastVisibleTweet) {
     // timelineList.style.setProperty('padding-bottom', '0px', 'important');
 
     // console.log('timeline feed container virtualisation height collapsed.')
+    const rect = lastVisibleTweetWrapper.getBoundingClientRect();
+    // the height of content that is outside (above) the screen
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    limitPixel = rect.bottom + scrollTop;
+    isScrollLocked = true;
 };
+
+// event listener to scroll
+window.addEventListener('scroll', () => {
+    if (isScrollLocked && window.scrollY + window.innerHeight > limitPixel) {
+        window.scrollTo(0, limitPixel - window.innerHeight);
+    }
+});
 
 function startApp(feedContainer) {
 
