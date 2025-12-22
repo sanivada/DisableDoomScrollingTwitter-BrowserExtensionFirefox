@@ -189,6 +189,7 @@ function waitFor(selector) {
 
 browser.storage.local.get("xPostLimitNum").then((result) => {
     LIMIT = result.xPostLimitNum || LIMIT;
+    console.log(`Retrieved the limit value from storage: ${LIMIT}`);
     waitFor('div[aria-label="Home timeline"]');
 });
 
@@ -199,3 +200,5 @@ browser.storage.onChanged.addListener((changes, area) => {
         LIMIT = changes.xPostLimitNum.newValue;
     };
 });
+
+console.log('This line is being run!');

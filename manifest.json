@@ -7,7 +7,9 @@
     
     "content_scripts": [
         {
-            "matches": ["*://*.x.com/home"],
+            "matches": [
+                "*://*.x.com/*", 
+                "*://*.twitter.com/*"],
             "js": ["limitPosts.js"]
         }
     ],
@@ -16,7 +18,7 @@
         "storage",
         "activeTab"
     ],
-    
+
     "browser_action": {
         "default_title": "X Scroll limiter",
         "default_popup": "popup/select_options.html"
