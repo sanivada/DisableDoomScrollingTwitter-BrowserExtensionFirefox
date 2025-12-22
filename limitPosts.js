@@ -35,30 +35,25 @@ function cleanUpFeed(lastVisibleTweet) {
 
     let lastVisibleTweetWrapper = getTweetWrapper(lastVisibleTweet); 
     let sibling = lastVisibleTweetWrapper.nextElementSibling;
-    // add the rest of tweets in the DOM to the registry
-    // to let those extra tweets load into DOM
-    // when scrolled up and then down to the limit.
                     
     while (sibling) {
-        // sibling.style.display = 'none';
         sibling.style.setProperty('visibility', 'hidden', 'important');
         sibling.style.setProperty('opacity', '0', 'important');
         sibling = sibling.nextElementSibling;
     }
-    // console.log('cleaned the tweets after N tweets, after the limit is reached.')
     
     const rect = lastVisibleTweetWrapper.getBoundingClientRect();
     const parentRect = lastVisibleTweetWrapper.parentElement.getBoundingClientRect();
     const relativePos = rect.bottom - parentRect.top;
     // add a stop sign
     const stopSign = document.createElement('div');
-    // stopSign.id = 'extension-stop-sign';
     stopSign.setAttribute('isExtensionStopSign', 'true');
     stopSign.innerText = `You have reached your limit of ${LIMIT} tweets`;
     stopSign.style.cssText = `
         font-weight: bold;
         text-align: center;
-        padding: 40px;
+        margin: 20px;
+        padding: 40px 20px;
         position: absolute;
         width: 100%;
         transform: translateY(${relativePos}px);
@@ -70,26 +65,8 @@ function cleanUpFeed(lastVisibleTweet) {
     `;
 
     lastVisibleTweetWrapper.after(stopSign);
-    // const tweetContainer = document.querySelector('div[aria-label="Home timeline"]');
-    // tweetContainer.append(stopSign);
-    // lastVisibleTweet.parentNode.appendChild(stopSign);
-
-
-    const timelineList = lastVisibleTweetWrapper.parentNode;
-    // timelineList.appendChild(stopSign);
     console.log('added the stop sign!')
 
-    /* parent of node with data-testid = "cellInnerDiv"
-    has a min-height style set to a large value
-    which dynamically increases
-    */
-
-    // timelineList.style.setProperty('min-height', '0px', 'important');
-    // timelineList.style.setProperty('height', 'auto', 'important');
-    // timelineList.style.setProperty('padding-bottom', '0px', 'important');
-
-    // console.log('timeline feed container virtualisation height collapsed.')
-    // the height of content that is outside (above) the screen
     const stopSignRect = stopSign.getBoundingClientRect();
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
     limitPixel = stopSignRect.bottom + scrollTop;
@@ -123,7 +100,6 @@ function startApp(feedContainer) {
                     cleanUpFeed(entry.target);
                 };
 
-                // entry.target.setAttribute('data-seen', 'true');
                 observer.unobserve(entry.target);
             }
         })
@@ -159,12 +135,7 @@ function startApp(feedContainer) {
                         }
 
                         if (limitReached) {
-                            // if (node.matches('article[data-testid="tweet"]') ||
-                            //         node.querySelector('article[data-testid="tweet"]')) {
-                            //             node.style.display = 'none';
-                            //         };
                             if (!node.hasAttribute('isExtensionStopSign')) {
-                                // node.style.display = 'none';
                                 node.style.setProperty('visibility', 'hidden', 'important');
                                 node.style.setProperty('opacity', '0', 'important');
                             };
