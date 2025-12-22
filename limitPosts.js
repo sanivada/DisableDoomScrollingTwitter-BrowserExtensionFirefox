@@ -1,5 +1,5 @@
 let visibleTweetCounter = 0;
-let LIMIT = 20;
+let LIMIT = 20; // default
 let limitReached = false;
 let limitPixel = 0;
 let isScrollLocked = false;
@@ -187,4 +187,15 @@ function waitFor(selector) {
     }, 500)
 };
 
-waitFor('div[aria-label="Home timeline"]');
+browser.storage.local.get("xPostLimitNum").then((result) => {
+    LIMIT = result.xPostLimitNum || LIMIT;
+    waitFor('div[aria-label="Home timeline"]');
+});
+
+// event listener for changes in storage
+// only works if limit is changed before the limit is reached.
+browser.storage.onChanged.addListener((changes, area) => {
+    if (area === 'local' && changes.xPostLimitNum) {
+        LIMIT = changes.xPostLimitNum.newValue;
+    };
+});

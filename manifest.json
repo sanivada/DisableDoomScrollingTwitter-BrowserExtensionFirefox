@@ -10,6 +10,16 @@
             "matches": ["*://*.x.com/home"],
             "js": ["limitPosts.js"]
         }
-    ]
+    ],
+
+    "permissions": [
+        "storage",
+        "activeTab"
+    ],
+    
+    "browser_action": {
+        "default_title": "X Scroll limiter",
+        "default_popup": "popup/select_options.html"
+    }
 
 }
