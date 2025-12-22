@@ -1,0 +1,16 @@
+#popup-content {
+    max-width: 150px;
+    display:flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+}
+
+div#popup-content > label {
+    font-size: small;
+}
+
+input#limit {
+    text-align: center;
+}
+
